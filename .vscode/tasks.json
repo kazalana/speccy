@@ -1,0 +1,54 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build current file",
+      "type": "shell",
+      "command": "${workspaceFolder}/tools/sjasmplus.exe",
+      "args": [
+        "--fullpath",
+        "--sld=.build/${fileBasenameNoExtension}.sld",
+        "${file}"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    },
+
+    {
+      "label": "Build draw_sprite.bin",
+      "type": "shell",
+      "command": "${workspaceFolder}/tools/sjasmplus.exe",
+      "args": [
+        "--fullpath",
+        "--sld=.build/draw_sprite.sld",
+        "--exp=.build/draw_sprite.exp",
+        "vid_out/draw_sprite_build.asm"
+      ],
+
+      "group": "build",
+      "problemMatcher": []
+    },
+
+    {
+      "label": "Build main.sna",
+      "type": "shell",
+      "command": "${workspaceFolder}/tools/sjasmplus.exe",
+      "args": [
+        "--fullpath",
+        "--sld=.build/main.sld",
+        "--exp=.build/main.exp",
+        "smiley/main.asm"
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "dependsOn": [
+        "Build draw_sprite.bin"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "configurations": [
+    {
+      "type": "dezog",
+      "request": "launch",
+      "name": "Debug ZX Spectrum",
+      "remoteType": "zrcp",
+      "zrcp": {
+        "hostname": "localhost",
+        "port": 10000
+      },
+      
+      "sjasmplus": [
+        {
+          "path": ".build/main.sld",
+          "asm": "sjasmplus",
+          "mainFile": "${file}"
+        },
+        {
+          "path": ".build/draw_sprite.sld",
+          "asm": "sjasmplus",
+          "mainFile": "vid_out/draw_sprite.asm"
+        }
+      ],
+
+      "rootFolder": "${workspaceFolder}",
+      "load": ".build/main.sna",
+      "preLaunchTask": "Build main.sna"
+    }
+  ]
+}

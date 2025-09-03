@@ -1,0 +1,17 @@
+.build/draw_sprite.bin
+.build/draw_sprite.exp
+.build/draw_sprite.sld
+.build/main.exp
+.build/main.sld
+.build/main.sna
+.tmp/build_test.cmd
+.tmp/disasm.list
+tools/utils/screen_addr.py
+tools/utils/screen_line_addresses.inc
+tools/utils/.idea/.gitignore
+tools/utils/.idea/misc.xml
+tools/utils/.idea/modules.xml
+tools/utils/.idea/utils.iml
+tools/utils/.idea/vcs.xml
+tools/utils/.idea/inspectionProfiles/profiles_settings.xml
+tools/sjasmplus.exe
