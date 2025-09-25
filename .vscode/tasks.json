@@ -32,7 +32,7 @@
     },
 
     {
-      "label": "Build main.sna",
+      "label": "Build main",
       "type": "shell",
       "command": "${workspaceFolder}/tools/sjasmplus.exe",
       "args": [
@@ -49,6 +49,38 @@
       "dependsOn": [
         "Build draw_sprite.bin"
       ]
+    },
+    {
+      "label": "Load main.bin via ZRCP",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "load_bin.ps1"
+      ],
+      "problemMatcher": []
+    },
+
+    {
+      "label": "Generate video_line_table.inc",
+      "type": "shell",
+      "command": "python3",
+      "args": [
+        "${workspaceFolder}/tools/utils/generate_video_line_table.py"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
     }
   ]
 }
