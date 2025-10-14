@@ -67,13 +67,7 @@ DrawPlayer:
 
         LD IY, Player_C
         CALL DrawSprite8x8_light
-
-
-        ;LD A, (old_y)               ; set Y=96
-        ;LD H, A
-
-        ;LD A, (old_x)
-        ;LD L, A               ; set X=16
+        
         POP HL
         RET
 

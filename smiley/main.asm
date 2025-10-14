@@ -5,23 +5,15 @@
         INCLUDE "player.inc"
 main:  
         LD SP, $6100   ; Stack pointer set to save place
-        ei
+        ei ; IT DOESN'T WORK ??
 
-        ; черный бордюр 
-        xor a
-        out (#fe),a
+        xor A
+        out (#fe),a ; black border
+        CALL FillScreenAttr ; fill screen ATTR-s with PAPER=BLACK, INK=BLACK
 
-        LD A, $FF
-        CALL FillScreen
-
-        LD A, (old_y)               ; set Y=96
-        LD H, A
-
-        LD A, (old_x)
-        LD L, A               ; set X=16
-
-        
+        LD HL, (old_x)
         CALL DrawPlayer
+        
 .test3  JR .test3        
         
 .test2
@@ -184,6 +176,14 @@ FillScreen:
         LDIR
         RET
 
+FillScreenAttr:        
+        LD HL, $5800
+        LD DE, $5801
+        LD BC, 768 - 1
+        LD (HL), A
+        LDIR
+        RET
+
 ;Smiley face
 sprite_data_original:
         db %00111100
@@ -207,8 +207,11 @@ sprite_data_empty:
 
 
 flags: db %00000000 ; 1 - erase sprite bit
-old_y: db 96    ; old Y coordinate
-old_x: db 16    ; old X coordinate
+
+; must be one by one (for LD HL, old_x)
+old_x: db 120    ; old X coordinate
+old_y: db 175    ; old Y coordinate
+
 
 end:
         display "code size: ", /d, end - main

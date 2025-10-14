@@ -10,6 +10,8 @@
         INCLUDE "video_line_table.inc"
 draw_sprite_build_begin
 
+CurrentSpriteAttribute:
+        db %00000010 ; attribute byte of current sprite (for future use)
 
 DrawSprite8x8_addresses:
         db %00000000 ; first byte address
@@ -37,7 +39,53 @@ DrawSprite8x8_addresses:
         db %00000000
 
 
+SetSpriteAttribute:
+
+        PUSH HL
+        PUSH DE
+
+
+        LD A, H
+        SRL A
+        SRL A
+        SRL A   ;(Y / 8)
+        INC A
+        
+        LD D, 0
+        LD E, A
+        ADD DE, DE
+        ADD DE, DE
+        ADD DE, DE
+        ADD DE, DE
+        ADD DE, DE    ;(Y / 8) * 32 = offsetY
+        
+        ; X → A = X / 8
+        LD A, L
+        SRL A
+        SRL A
+        SRL A               ; A = X / 8 = offsetX
+
+        PUSH DE
+        POP HL
+        
+        ; HL = $5800 + offsetY
+        LD DE, $5800
+        ADD HL, DE
+
+        ; HL += offsetX
+        LD D, 0
+        LD E, A
+        ADD HL, DE
+
+        LD A, (CurrentSpriteAttribute)
+        LD (HL), A
+
+        POP DE
+        POP HL
+        RET
+
 DrawSprite8x8_light:
+        CALL SetSpriteAttribute
         PUSH HL
         PUSH IY
 

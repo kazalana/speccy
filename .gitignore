@@ -1,9 +1,4 @@
-.build/draw_sprite.bin
-.build/draw_sprite.exp
-.build/draw_sprite.sld
-.build/main.exp
-.build/main.sld
-.build/main.sna
+.build/
 .tmp/build_test.cmd
 .tmp/disasm.list
 tools/utils/screen_addr.py
