@@ -215,5 +215,5 @@ old_y: db 175    ; old Y coordinate
 
 end:
         display "code size: ", /d, end - main
-        SAVESNA ".build/main.sna", main
-        SAVEBIN ".build/main.bin", main, end - main
+        SAVESNA ".build/smiley/main.sna", main
+        SAVEBIN ".build/smiley/main.bin", main, end - main

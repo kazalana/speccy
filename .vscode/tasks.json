@@ -7,7 +7,7 @@
       "command": "${workspaceFolder}/tools/sjasmplus.exe",
       "args": [
         "--fullpath",
-        "--sld=.build/${fileBasenameNoExtension}.sld",
+        "--sld=.build/current_file_build/${fileBasenameNoExtension}.sld",
         "${file}"
       ],
       "group": {
@@ -22,8 +22,8 @@
       "command": "${workspaceFolder}/tools/sjasmplus.exe",
       "args": [
         "--fullpath",
-        "--sld=.build/draw_sprite.sld",
-        "--exp=.build/draw_sprite.exp",
+        "--sld=.build/vid_out/draw_sprite.sld",
+        "--exp=.build/vid_out/draw_sprite.exp",
         "vid_out/draw_sprite_build.asm"
       ],
 
@@ -32,13 +32,13 @@
     },
 
     {
-      "label": "Build main",
+      "label": "Build smiley main",
       "type": "shell",
       "command": "${workspaceFolder}/tools/sjasmplus.exe",
       "args": [
         "--fullpath",
-        "--sld=.build/main.sld",
-        "--exp=.build/main.exp",
+        "--sld=.build/smiley/main.sld",
+        "--exp=.build/smiley/main.exp",
         "smiley/main.asm"
       ],
       "problemMatcher": [],
@@ -81,6 +81,41 @@
         "panel": "shared"
       },
       "problemMatcher": []
-    }
+    },
+
+    {
+      "label": "Build tetris main",
+      "type": "shell",
+      "command": "${workspaceFolder}/tools/sjasmplus.exe",
+      "args": [
+        "--fullpath",
+        "--sld=.build/tetris/main.sld",
+        "--exp=.build/tetris/main.exp",
+        "tetris/main.asm"
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "dependsOn": [
+        "Build common.bin"
+      ]
+    },
+
+    {
+      "label": "Build common.bin",
+      "type": "shell",
+      "command": "${workspaceFolder}/tools/sjasmplus.exe",
+      "args": [
+        "--fullpath",
+        "--sld=.build/common/common.sld",
+        "--exp=.build/common/common.exp",
+        "common/_build.asm"
+      ],
+
+      "group": "build",
+      "problemMatcher": []
+    },
   ]
 }

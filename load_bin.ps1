@@ -1,4 +1,4 @@
-$binPath = "D:\speccy\speccy\.build\main.bin"
+$binPath = "D:\speccy\speccy\.build\smiley\main.bin"
 $address = 32768
 $length = (Get-Item $binPath).Length
 $command = "load-binary $binPath $address $length"
