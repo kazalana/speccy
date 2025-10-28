@@ -5,159 +5,60 @@
 
         INCLUDE "../common/screen_utils.asm"
         INCLUDE "../common/arithmetics.asm"
+        INCLUDE "../common/text.asm"
+        INCLUDE "data.asm"
 
-ADDR_ATTR_BEGIN EQU $5800
-RND_ADDR EQU $60FF
-ADDR_ATTR_LAST_STR EQU $5AE0
-GLASS_Y EQU 23
-GLASS_X EQU 16
-GLASS_ATTR EQU %00001000
-PLR_ATTR EQU 42
-FREEZE_ATTR EQU %00010000
-PLR_SIZE EQU 4
-PLR_ADDR_BEGIN EQU $5806
-
-AUTO_DOWN_THRESHOLD EQU 16 ; it means, autodown fires, when game_auto_down_counter == 255, other worlds each  255*255 game cycles
-GAME_SPEED EQU 255 ; lets try to count it at game cycles loop, game_auto_down_counter will increase each time  game_cycle_counter == GAME_SPEED
-
-FREEZE_PLAYER_BIT  EQU 0
-KEY_LEFT  EQU %00000001
-KEY_RIGHT EQU %00000010
-KEY_DOWN  EQU %00000100
-KEY_ROT   EQU %00001000
-KEY_LEFT_BIT  EQU 0
-KEY_RIGHT_BIT EQU 1
-KEY_DOWN_BIT  EQU 2
-KEY_ROT_BIT   EQU 3
-
-;keep actual data size if data grow
-PLR_DATA_SIZE EQU (PLR_SIZE + 1) * 2 + 1 ; all data [player_addr_0 .. player_flags_next]
-
-tetramino:
-_T0:    db %11100100 ; 2 bytes per figure -> matrix 4x4 bits 
-        db %00000000
-
-_T1:    db %01001100
-        db %01000000
-
-_T2:    db %01001110
-        db %00000000
-
-_T3:    db %01000110
-        db %01000000          
-
-
-_L0:    db %11101000 
-        db %00000000
-
-_L1:    db %11000100 
-        db %01000000
-
-_L2:    db %00101110 
-        db %00000000
-
-_L3:    db %01000100 
-        db %01100000
-
-_J0:    db %11100010 
-        db %00000000
-
-_J1:    db %01000100 
-        db %11000000
-
-_J2:    db %10001110 
-        db %00000000
-
-_J3:    db %01100100 
-        db %01000000
-
-
-_O0:    db %01100110 
-        db %00000000
-
-_O1:    db %01100110 
-        db %00000000
-
-_O2:    db %01100110 
-        db %00000000
-
-_O3:    db %01100110 
-        db %00000000
-
-
-_I0:    db %11110000 
-        db %00000000
-
-_I1:    db %01000100 
-        db %01000100
-
-_I2:    db %11110000 
-        db %00000000
-
-_I3:    db %01000100 
-        db %01000100
-
-
-_S0:    db %00110110 
-        db %00000000
-
-_S1:    db %01000110 
-        db %00100000
-
-_S2:    db %00110110 
-        db %00000000
-
-_S3:    db %01000110 
-        db %00100000
-
-_Z0:    db %01100011 
-        db %00000000
-
-_Z1:    db %00100110 
-        db %01000000
-
-_Z2:    db %01100011 
-        db %00000000
-
-_Z3:    db %00100110 
-        db %01000000
-
-key_flags: db %00000000
-
-game_cycle_flags: db %00000000 ; 1bit check player freeze and game over
-
-game_cycle_counter db 0 ; just simple [0..255] runner, may be usefull for random
-game_auto_down_counter db 0
-
-current_player_data:
-player_addr_0: dw $5800
-player_addr_1: dw $5800
-player_addr_2: dw $5800
-player_addr_3: dw $5800
-player_pos_addr : dw PLR_ADDR_BEGIN ; start address for 4x4 matrix player
-player_flags:  ; reserved  fig_Type, fig_typeN
-        db 0 ;     000      000        00
-
-next_player_data:
-player_addr_next_0: dw $5800
-player_addr_next_1: dw $5800
-player_addr_next_2: dw $5800
-player_addr_next_3: dw $5800
-player_pos_addr_next : dw PLR_ADDR_BEGIN ; start address for 4x4 matrix player - suppose
-player_flags_next: db 0
-
-figure_coords_deltas:
-        db 0,  1,  2,  3   ; first byte, first 2 strings
-        db 32, 33, 34, 35 
-        db 64, 65, 66, 67  ; second byte, second 2 strings
-        db 96, 97, 98, 99
-
-main:
+main:  
         DI
         XOR A
         OUT (#fe), A ; black border
         CALL FillScreenAttr ; black paper, black ink
         CALL FillScreen ; clear screen
+
+        LD A, 2
+        call $1601  ;stream?
+
+        LD B, 16
+        LD DE, sign_format_string
+
+.draw_sign_loop
+        PUSH BC
+        PUSH DE
+        LD BC, 8
+        call $203c
+        LD BC, 8
+        POP DE
+        ADD DE, BC
+        POP BC
+        DJNZ .draw_sign_loop
+
+        LD DE, score_hint
+        LD BC, score_hint_end - score_hint
+        call $203c
+
+        LD DE, controls_hint
+        LD BC, controls_hint_0 - controls_hint
+        call $203c
+
+        LD DE, controls_hint_0
+        LD BC, controls_hint_1 - controls_hint_0
+        call $203c
+
+        LD DE, controls_hint_1
+        LD BC, controls_hint_2 - controls_hint_1
+        call $203c
+
+        LD DE, controls_hint_2
+        LD BC, controls_hint_3 - controls_hint_2
+        call $203c
+
+        LD DE, controls_hint_3
+        LD BC, controls_hint_end - controls_hint_3
+        call $203c
+
+        LD DE, next_hint
+        LD BC, next_hint_end - next_hint
+        call $203c
 
 .draw_glass
         LD HL, ADDR_ATTR_BEGIN
@@ -201,6 +102,9 @@ main:
         JR NZ, .draw_glass_debug_loop
 */
         CALL RandomizePlayer ; set IX to current figure
+        LD A, (player_random_flags)
+        LD (player_flags), A
+
         ;LD IX, _I1
         LD IY, PLR_ADDR_BEGIN
         LD HL, player_addr_0 ; set real player addresses 
@@ -208,10 +112,36 @@ main:
 
         LD A, PLR_ATTR
         LD HL, player_addr_0
-        CALL DrawPlayer_HL
+        CALL DrawPlayer_HL  
+
+        CALL UpdatePreview
+
+        LD IX, score
+        LD HL, 0
+        CALL SaveHLtoIX
         
+        LD DE, 0
+        CALL UpdateScore
+        
+;.test  JR .test             
 
 main_loop:
+
+        ; clear key flags if key pressed long enough (besides drop button)
+        LD A, (key_flags)
+        BIT KEY_SPC_BIT, A
+        JR NZ, .skip_auto_repeat_key_check
+        LD A, (key_auto_repeat_counter)
+         
+        OR A
+        JP Z, .skip_auto_repeat_key_check
+        CP KEY_REPEAT_THRESHHOLD
+        JP NZ, .skip_auto_repeat_key_check  
+        XOR A   
+        LD (key_flags), A ; release key
+        LD (key_auto_repeat_counter), A ; reset */
+.skip_auto_repeat_key_check
+
         CALL ReadKeys
         OR A
         JR Z, .check_auto_down ; Z flag is set if A==0 (no key down or key already pressed)
@@ -223,7 +153,7 @@ main_loop:
         DEC HL
         LD (player_pos_addr_next), HL 
 
-        LD A, 0
+        LD HL, -1
         JR .update_left_or_right_position
 
 .check_auto_down:
@@ -234,6 +164,7 @@ main_loop:
         JP NZ, .skip_key_action  ; make auto down, "emulate" down key
         XOR A
         LD (game_auto_down_counter), A ; reset game_auto_down_counter
+        LD DE, 1; delta score
         JR .auto_down
 
 .no_key_left:
@@ -243,14 +174,14 @@ main_loop:
         INC HL
         LD (player_pos_addr_next), HL
 
-        LD A, 1
+        LD HL, 1
 
 .update_left_or_right_position: ;  set A to 0 or 1
         LD IX, player_addr_0
         LD IY, player_addr_next_0
         LD B, PLR_SIZE
-        CALL UpdateValueBlockFromIX_to_IY
-        JR .can_move_player
+        CALL AddValueBlockFromIX_to_IY
+        JP .can_move_player
 
 .no_key_left_right:
         BIT KEY_DOWN_BIT, A
@@ -262,7 +193,7 @@ main_loop:
         ADD HL, DE
         LD (player_pos_addr_next), HL
         
-        LD A, 32 ; one string down
+        LD HL, 32 ; one string down
         LD IX, player_addr_0
         LD IY, player_addr_next_0
         LD B, PLR_SIZE ;
@@ -271,11 +202,11 @@ main_loop:
         LD A, (game_cycle_flags)
         OR %00000001
         LD (game_cycle_flags), A; set freeze and game over player flags
-        JR .can_move_player
+        JP .can_move_player
         
 .no_key_left_right_down                         ; ROTATE ROUTINE BEGIN
         BIT KEY_ROT_BIT, A
-        JP Z, .skip_key_action
+        JP Z, .no_key_left_right_down_rot
 
         LD A, (player_flags)  ; load current figure type and current rotate state 
         LD B, A ;
@@ -304,7 +235,7 @@ main_loop:
         LD A, B
 
         OR A
-        jr Z, .skip_figure_state_loop ; type 0 already selected, skip it
+        JR Z, .skip_figure_state_loop ; type 0 already selected, skip it
 .select_curren_figure_state_loop:
         ADD IX, DE
         DJNZ .select_curren_figure_state_loop
@@ -314,12 +245,56 @@ main_loop:
         LD HL, player_addr_next_0 ; set desire player addresses
         CALL CreatePlayer
         JR .can_move_player
-        ;JR .skip_key_action
 
-        ;LD A, PLR_ATTR
-        ;LD HL, player_addr_0
-        ;CALL DrawPlayer_HL ; draw in new positions
-        ;JP .skip_key_action                             ; ROTATE ROUTINE END
+                                        ; ROTATE ROUTINE END
+
+                                        ; AUTO FALL DOWN
+.no_key_left_right_down_rot 
+        BIT KEY_SPC_BIT, A
+        JP Z, .skip_key_action
+
+.auto_fall_down_one_time
+        LD HL, 32 ; one string down
+        LD IX, player_addr_next_0
+        LD B, PLR_SIZE ;
+        CALL AddValueBlockIX
+
+        LD HL, (player_pos_addr_next)  ; prepare player_pos - shift down
+        LD DE, 32
+        ADD HL, DE
+        LD (player_pos_addr_next), HL
+
+        LD HL, player_addr_next_0
+        CALL IsPlayerPosValid ; check next pos is valid
+        OR A
+        JR NZ, .stop_auto_fall ;  pos not valid - stop auto falling and restore previous position
+
+        ;LD   HL, next_player_data   ; set new player data (source address)
+        ;LD   DE, current_player_data        ; (target address)
+        ;LD   BC, PLR_DATA_SIZE 
+        ;LDIR
+
+        JR .auto_fall_down_one_time ;pos valid, move down once again
+
+.stop_auto_fall
+        LD HL, -32 ; one string up!
+        LD IX, player_addr_next_0
+        LD B, PLR_SIZE ;
+        CALL AddValueBlockIX ; ok, return on string up and stop
+
+        LD HL, (player_pos_addr_next)  ; also restore player_pos - shift up one string
+        LD DE, -32
+        ADD HL, DE
+        LD (player_pos_addr_next), HL
+
+        XOR A
+        LD (game_auto_down_counter), A ; reset auto_down_counter
+        
+        ;LD A, (game_cycle_flags)
+        ;OR %00000001
+        ;LD (game_cycle_flags), A; set freeze and game over player flags
+        ;JR .can_move_player
+        JR .redraw_player_and_set_new_data
 
 .can_move_player
         LD HL, player_addr_next_0
@@ -332,13 +307,36 @@ main_loop:
         BIT FREEZE_PLAYER_BIT, A
         JR Z, .skip_key_action
 
-        LD A, FREEZE_ATTR
+        ; choose freeze color, each figType has own
+        LD DE, freeze_attr
+        LD A, (player_flags)
+        SRL A
+        SRL A
+        SRL A ; A - contains figure type  - 0..6
+        LD H, 0
+        LD L, A
+        ADD DE, HL
+        LD A , (DE)
+
         LD HL, player_addr_0
         CALL DrawPlayer_HL ; freeze
 
+        LD A, (key_flags)
+        BIT KEY_SPC_BIT, A
+        JR NZ, .skip_reset_key_flags
+        XOR A
+        LD (key_flags), A
+.skip_reset_key_flags
+        XOR A
+        LD (key_auto_repeat_counter), A ;
+        
         CALL ClearFullLines; void func, clear all full lines, as in original tetris
 
-        CALL RandomizePlayer ; set new figure address to IX
+        ;RandomizePlayer was called before, in the begin of game, and use player_random_flags  as current player_flags
+        LD HL, player_random
+        CALL LoadHLtoIX
+        LD A, (player_random_flags)
+        LD (player_flags), A
         
         LD IY, PLR_ADDR_BEGIN ;set player start position
         LD (player_pos_addr), IY
@@ -355,6 +353,9 @@ main_loop:
         LD A, PLR_ATTR
         LD HL, player_addr_0
         CALL DrawPlayer_HL ; 
+
+        CALL UpdatePreview
+
         JR .skip_key_action ; done main logic routine, continue
                                                 ; END PLAYER FREEZE AND RE-CREATED, LINE  ROUTINE
 
@@ -385,13 +386,16 @@ main_loop:
         INC A
         LD (game_cycle_counter), A
 
-        ;LD A, (game_cycle_counter)
         CP GAME_SPEED        
-        JR NZ, .skip_auto_down_update
+        JR NZ, .skip_counters_update
         LD A, (game_auto_down_counter)
         INC A
         LD (game_auto_down_counter), A
-.skip_auto_down_update
+
+        LD A, (key_auto_repeat_counter)
+        INC A
+        LD (key_auto_repeat_counter), A
+.skip_counters_update
 
         JP main_loop
 
@@ -413,6 +417,7 @@ ReadKeys:
         LD A, (key_flags)
         OR KEY_ROT
         LD (key_flags), A
+
         RET
 .ret_Q
         RET
@@ -429,7 +434,7 @@ ReadKeys:
         JR Z, .set_key_down_flag 
 
         XOR A ; skip if some key already pressed (A != 0)
-        RET
+        RET      
 
 .set_key_down_flag 
         ; set key down flag
@@ -479,11 +484,32 @@ ReadKeys:
         OR KEY_RIGHT
         LD (key_flags), A
         RET
-.noP:
+.noP
+        LD A, $7F  ; check space
+        IN A, ($FE)
+        BIT 0, A   
+        JR NZ, .noSPACE
+
         LD A, (key_flags)
-        XOR A
+        OR A 
+        JR Z, .set_key_space_flag 
+
+        XOR A ; skip if some key already pressed (A != 0)
+        RET
+
+.set_key_space_flag
+        ; set key space flag
+        LD A, (key_flags)
+        OR KEY_SPC
         LD (key_flags), A
         RET
+
+.noSPACE:
+        XOR A
+        LD (key_flags), A
+        LD (key_auto_repeat_counter), A ; reset
+        RET
+
 
 
 DrawPlayer_HL:
@@ -525,7 +551,7 @@ RandomizePlayer:
         SLA A
         SLA A
         SLA A        
-        LD (player_flags), A
+        LD (player_random_flags), A
         RET
 
     
@@ -556,12 +582,7 @@ CreatePlayer:
         LD IX, IY;
         ADD IX, DE                ; IX has full address for Xij = IY + Dij
 
-        LD A, IXL                 ; save IX to (HL)
-        LD (HL), A
-        INC HL
-        LD A, IXH
-        LD (HL), A
-        INC HL
+        CALL SaveIXtoHL
 
         POP IX
         POP DE
@@ -576,6 +597,69 @@ CreatePlayer:
         JR NZ, .loop_byte
 
         RET
+
+; Add DE to score value
+UpdateScore:  
+        PUSH HL
+        PUSH DE
+        PUSH IY
+        PUSH IX
+        PUSH BC
+        PUSH AF
+
+        LD HL, (score)
+        ADD HL, DE ; new score value
+        
+        PUSH HL
+        LD DE, MAX_SCORE      ; 1000
+        OR A ; reset Carry
+        SBC HL, DE ; HL - MAX_SCORE
+        POP HL
+        JP C, .max_score_reset_skip
+        LD HL, 0
+.max_score_reset_skip
+        
+        LD IX, score
+        CALL SaveHLtoIX
+
+        LD DE, score_hint_value
+        CALL IntToAScii3
+        
+        LD DE, score_hint_value
+        LD IX, $501A                    ; screen pos
+        LD B, 3
+
+        CALL DrawSymbols
+
+        POP AF
+        POP BC
+        POP IX
+        POP IY
+        POP DE
+        POP HL
+        
+        RET
+
+UpdatePreview:
+
+        LD A, 0    ; erase old preview
+        LD HL, preview_addr_0
+        CALL DrawPlayer_HL
+
+        CALL RandomizePlayer ; set IX to next(!) figure
+
+        LD HL, player_random  ; will use this as next random
+        CALL SaveIXtoHL
+
+        LD IY, PREVIEW_ADDR_BEGIN
+        LD HL, preview_addr_0 ; preview addresses 
+        CALL CreatePlayer ; create preview here :)
+
+        LD A, PLR_ATTR    ; draw preview
+        LD HL, preview_addr_0
+        CALL DrawPlayer_HL
+        RET
+
 ; HL - desired player start address to check
 ; A == 0 position valid
 ; A != 0 position invalid
@@ -605,6 +689,33 @@ IsPlayerPosValid:
         RET
 
 
+SaveIXtoHL ; save IX to (HL)
+        LD A, IXL                 
+        LD (HL), A
+        INC HL
+        LD A, IXH
+        LD (HL), A
+        INC HL
+        RET
+
+SaveHLtoIX ; save HL to (IX)
+        LD A, L                 
+        LD (IX), A
+        INC IX
+        LD A, H
+        LD (IX), A
+        INC IX
+        RET
+
+LoadHLtoIX ; load (HL) to IX
+        LD A, (HL)
+        INC HL
+        LD IXL, A
+        LD A, (HL)
+        LD IXH, A
+        INC HL
+        RET
+
 ClearFullLines
         LD HL, ADDR_ATTR_BEGIN + 1    
         LD B, 0 ; from up to down, from 0 to GLASS Y
@@ -620,7 +731,12 @@ ClearFullLines
 
         DEC C
         JR NZ, .check_line_loop
-        ; full line detected
+.full_line_detected
+
+.update_score
+        LD DE, 1
+        CALL UpdateScore
+
         XOR A                         ; BEGIN CLEAR LINE AND MOVE ALL ABOVE LINES DATA DOWN ROUTINE
         PUSH BC
 
@@ -635,8 +751,6 @@ ClearFullLines
 
         LD HL, IX  ; restore current line start 
         ; MOVE ALL LINES ABOVE DOWN ONE STRING
-        ;LD A, GLASS_Y -1
-        ;SUB B           ; count lines above
         LD C, B   ; lines above amount
 .move_all_lines_down_one_string_loop        
         ; move data pointer down glass to current "downing" string
@@ -671,8 +785,6 @@ ClearFullLines
 
         POP BC                         ; END CLEAR LINE AND MOVE ALL ABOVE LINES DATA DOWN ROUTINE
 
-        ;LD DE, 32
-        ;ADD HL, DE ; next line - skip erased one
 
 .check_next_line
         LD HL, IX ; restore current line start
@@ -686,17 +798,15 @@ ClearFullLines
         RET        
 end:
 
-;basic_loader:
-;  db $00,$0a,$0e,$00,$20,$fd,"32767",$0e,$00,$00,$ff,$7f,$00,$0d     ; 10 CLEAR 32767
-;  db $00,$14,$07,$00,$20,$ef,$22,$22,$20,$af,$0d,"32768"                     ; 20 LOAD "" CODE
-;  db $00,$1e,$0f,$00,$20,$f9,$c0,"32989",$0e,$00,$00,$00,$80,$00,$0d ; 30 RANDOMIZE USR 32989
-;basic_loader_end:
-
 basic_loader:
-  db $00,$0a,$0e,$00,$20,$fd,$33,$32,$37,$36,$37,$0e,$00,$00,$ff,$7f,$00,$0d,$00,$14,$11,$00,$20,$ef,$22,$22,$af,$33,$32,$37,$36,$38,$0e,$00,$00,$00,$80,$00,$0d,$00,$1e,$0f,$00,$20,$f9,$c0,$33,$33,$30,$30,$32,$0e,$00,$00,$ea,$80,$00,$0d,$80,$0d,$80,$20,$f9,$c0,$33,$32,$39,$38,$39,$0e,$00,$00,$dd,$80,$00,$0d
+    db $00,$0a,$0e,$00,$20,$fd,$33,$32,$37,$36,$37,$0e,$00,$00,$ff,$7f
+    db $00,$0d,$00,$14,$11,$00,$20,$ef,$22,$22,$af,$33,$32,$37,$36,$38
+    db $0e,$00,$00,$00,$80,$00,$0d,$00,$1e,$0f,$00,$20,$f9,$c0,$33,$33
+    db $32,$39,$37,$0e,$00,$00
+    db $11,$82  ; <---- entry point (xz, doesn't work if change with hands)
+    db $00,$0d,$80,$0d,$80,$20,$f9,$c0
+    db $33,$32,$39,$38,$39,$0e,$00,$00,$dd,$80,$00,$0d
 basic_loader_end:
-
-
 
         display "Entry point address: ", /d, main
         display "End point address: ", /d, end
