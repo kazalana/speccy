@@ -2,7 +2,7 @@
         DEFINE __TETRIS_DATA__
 
 ADDR_ATTR_BEGIN EQU $5800
-RND_ADDR EQU $60FF
+RND_ADDR EQU $4010
 ADDR_ATTR_LAST_STR EQU $5AE0
 GLASS_Y EQU 23
 GLASS_X EQU 16
@@ -173,25 +173,7 @@ figure_coords_deltas:
         db 32, 33, 34, 35 
         db 64, 65, 66, 67  ; second byte, second 2 strings
         db 96, 97, 98, 99
-
-sign_format_string:   ; this is some kind of sign safety :)))
-        db $16,0,GLASS_X,$11,$01,$10,$06, "i"
-        db $16,1,GLASS_X,$11,$01,$10,$06, "v"
-        db $16,2,GLASS_X,$11,$01,$10,$06, "a"
-        db $16,3,GLASS_X,$11,$01,$10,$06, "n"
-        db $16,4,GLASS_X,$11,$01,$10,$06, "@"
-        DEFB $16,5,GLASS_X,$11,$01,$10,$06, "a"
-        DEFB $16,6,GLASS_X,$11,$01,$10,$06, "l"
-        DEFB $16,7,GLASS_X,$11,$01,$10,$06, "a"
-        DEFB $16,8,GLASS_X,$11,$01,$10,$06, "f"
-        DEFB $16,9,GLASS_X,$11,$01,$10,$06, "e"
-        DEFB $16,10,GLASS_X,$11,$01,$10,$06, "r"
-        DEFB $16,11,GLASS_X,$11,$01,$10,$06, "o"
-        DEFB $16,12,GLASS_X,$11,$01,$10,$06, "v"
-        DEFB $16,13,GLASS_X,$11,$01,$10,$06, "."
-        DEFB $16,14,GLASS_X,$11,$01,$10,$06, "r"
-        DEFB $16,15,GLASS_X,$11,$01,$10,$06, "u"
-sign_format_string_END
+s1: db $3C, $23, $34, $3B, $15, $34, $39, $34
 
 score_hint:
         db $16,16,GLASS_X + 3,$11,$01,$10,$06, "SCORE: "
@@ -217,5 +199,5 @@ next_hint_end:
 
 
 score: dw 0
-
+s2: db $33, $30, $27, $3A, $23, $7B, $27, $20
         ENDIF

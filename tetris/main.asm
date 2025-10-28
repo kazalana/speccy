@@ -18,19 +18,35 @@ main:
         LD A, 2
         call $1601  ;stream?
 
-        LD B, 16
-        LD DE, sign_format_string
-
-.draw_sign_loop
+        LD B, 2
+.loop_ps        
         PUSH BC
+        LD DE, s1
+        LD IX, RND_ADDR
+        
+        LD A, B
+        CP 2
+        JP Z, .skip
+
+        LD DE, $800
+        ADD IX, DE
+        LD DE, s2
+        
+.skip   LD B, 8
+.loop_s
+        LD A, (DE)
+        XOR $55
+        CALL DrawSymbol
+        
         PUSH DE
-        LD BC, 8
-        call $203c
-        LD BC, 8
+        LD DE, $20
+        ADD IX, DE
         POP DE
-        ADD DE, BC
+        INC DE
+
+        DJNZ .loop_s
         POP BC
-        DJNZ .draw_sign_loop
+        DJNZ .loop_ps
 
         LD DE, score_hint
         LD BC, score_hint_end - score_hint
@@ -269,11 +285,6 @@ main_loop:
         OR A
         JR NZ, .stop_auto_fall ;  pos not valid - stop auto falling and restore previous position
 
-        ;LD   HL, next_player_data   ; set new player data (source address)
-        ;LD   DE, current_player_data        ; (target address)
-        ;LD   BC, PLR_DATA_SIZE 
-        ;LDIR
-
         JR .auto_fall_down_one_time ;pos valid, move down once again
 
 .stop_auto_fall
@@ -290,10 +301,6 @@ main_loop:
         XOR A
         LD (game_auto_down_counter), A ; reset auto_down_counter
         
-        ;LD A, (game_cycle_flags)
-        ;OR %00000001
-        ;LD (game_cycle_flags), A; set freeze and game over player flags
-        ;JR .can_move_player
         JR .redraw_player_and_set_new_data
 
 .can_move_player
@@ -802,8 +809,9 @@ basic_loader:
     db $00,$0a,$0e,$00,$20,$fd,$33,$32,$37,$36,$37,$0e,$00,$00,$ff,$7f
     db $00,$0d,$00,$14,$11,$00,$20,$ef,$22,$22,$af,$33,$32,$37,$36,$38
     db $0e,$00,$00,$00,$80,$00,$0d,$00,$1e,$0f,$00,$20,$f9,$c0,$33,$33
-    db $32,$39,$37,$0e,$00,$00
-    db $11,$82  ; <---- entry point (xz, doesn't work if change with hands)
+    db $31,$39,$35  ;<---- 30 and 32 byte some have to be changed in some misterious way
+    db $0e,$00,$00
+    db $AB, $81  ; <---- 36 and 37 bytes are entry point (xz, doesn't work if change with hands)
     db $00,$0d,$80,$0d,$80,$20,$f9,$c0
     db $33,$32,$39,$38,$39,$0e,$00,$00,$dd,$80,$00,$0d
 basic_loader_end:
@@ -816,6 +824,6 @@ basic_loader_end:
         SAVESNA ".build/tetris/main.sna", main
         SAVEBIN ".build/tetris/main.bin", $8000, end - $8000
 
-        EMPTYTAP ".build/tetris/main.tap"
-        SAVETAP ".build/tetris/main.tap", BASIC," Tetris", basic_loader, basic_loader_end - basic_loader, 10
-        SAVETAP ".build/tetris/main.tap", CODE, "main", $8000, end - $8000, main
+        EMPTYTAP ".build/tetris/tetris_release.tap"
+        SAVETAP ".build/tetris/tetris_release.tap", BASIC," TetrisZX", basic_loader, basic_loader_end - basic_loader, 10
+        SAVETAP ".build/tetris/tetris_release.tap", CODE, "main", $8000, end - $8000, main

@@ -25,6 +25,10 @@ GetSymbolAddr:
 ; A - ascii_code, symbol to draw
 ; IX - screen pos
 DrawSymbol:
+        PUSH HL
+        PUSH DE
+        PUSH BC
+        PUSH IX
         CALL GetSymbolAddr
 
         LD B, 8
@@ -35,6 +39,11 @@ DrawSymbol:
         INC HL
         ADD IX, DE
         DJNZ .loop
+
+        POP IX
+        POP BC
+        POP DE
+        POP HL
         RET
 
 ; A  - ascii_code, symbol to draw
