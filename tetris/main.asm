@@ -7,8 +7,10 @@
         INCLUDE "../common/arithmetics.asm"
         INCLUDE "../common/text.asm"
         INCLUDE "data.asm"
+        INCLUDE "misc.asm"
 
-main:  
+        
+main:   
         DI
         XOR A
         OUT (#fe), A ; black border
@@ -88,7 +90,6 @@ main:
         ADD HL, DE
         DJNZ .draw_glass_walls_loop
         
-
 .draw_glass_bottom
         LD HL, ADDR_ATTR_BEGIN + 32*GLASS_Y
         LD B, GLASS_X + 1
@@ -97,6 +98,16 @@ main:
         LD (HL), A
         INC HL
         DJNZ .draw_glass_bottom_loop
+
+        LD IX, $4001
+        LD B, 8
+        CALL DrawCells
+        LD IX, $4801
+        LD B, 8
+        CALL DrawCells
+        LD IX, $5001
+        LD B, 7
+        CALL DrawCells
 
 /*
 .draw_glass_debug_data
@@ -116,7 +127,7 @@ main:
 
         DEC C
         JR NZ, .draw_glass_debug_loop
-*/
+*/      
         CALL RandomizePlayer ; set IX to current figure
         LD A, (player_random_flags)
         LD (player_flags), A
@@ -806,14 +817,10 @@ ClearFullLines
 end:
 
 basic_loader:
-    db $00,$0a,$0e,$00,$20,$fd,$33,$32,$37,$36,$37,$0e,$00,$00,$ff,$7f
-    db $00,$0d,$00,$14,$11,$00,$20,$ef,$22,$22,$af,$33,$32,$37,$36,$38
-    db $0e,$00,$00,$00,$80,$00,$0d,$00,$1e,$0f,$00,$20,$f9,$c0,$33,$33
-    db $31,$39,$35  ;<---- 30 and 32 byte some have to be changed in some misterious way
-    db $0e,$00,$00
-    db $AB, $81  ; <---- 36 and 37 bytes are entry point (xz, doesn't work if change with hands)
-    db $00,$0d,$80,$0d,$80,$20,$f9,$c0
-    db $33,$32,$39,$38,$39,$0e,$00,$00,$dd,$80,$00,$0d
+  db $00,$0a,$0e,$00,$20,$fd,$33,$32,$37,$36,$37,$0e,$00,$00,$ff,$7f,$00,$0d,$00,$14,$11,$00
+  db $20,$ef,$22,$22,$af,$33,$32,$37,$36,$38,$0e,$00,$00,$00,$80,$00,$0d,$00,$1e,$0f,$00,$20
+  db $f9,$c0,$33,$33,$32,$36,$35,$0e,$00,$00,$f1,$81,$00,$0d,$80,$0d,$80,$20,$f9,$c0,$33,$32
+  db $39,$38,$39,$0e,$00,$00,$dd,$80,$00,$0d
 basic_loader_end:
 
         display "Entry point address: ", /d, main

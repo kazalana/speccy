@@ -181,11 +181,11 @@ score_hint_value:
         db "000"
 score_hint_end:
 
-controls_hint:    db $16,0,GLASS_X + 3,$11,$01,$10,$06, "O   - Left"
-controls_hint_0:  db $16,1,GLASS_X + 3,$11,$01,$10,$06, "P   - Right"
+controls_hint:    db $16,0,GLASS_X + 3,$11,$01,$10,$06, "O   - Left  "
+controls_hint_0:  db $16,1,GLASS_X + 3,$11,$01,$10,$06, "P   - Right "
 controls_hint_1:  db $16,2,GLASS_X + 3,$11,$01,$10,$06, "Q   - Rotate"
-controls_hint_2:  db $16,3,GLASS_X + 3,$11,$01,$10,$06, "A   - Down"
-controls_hint_3:  db $16,4,GLASS_X + 3,$11,$01,$10,$06, "SPC - Drop"
+controls_hint_2:  db $16,3,GLASS_X + 3,$11,$01,$10,$06, "A   - Down  "
+controls_hint_3:  db $16,4,GLASS_X + 3,$11,$01,$10,$06, "SPC - Drop  "
 controls_hint_end:
 
 next_hint:
